@@ -449,6 +449,15 @@
             max-width: 400px;
             text-align: center;
         }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -482,8 +491,9 @@
 
     <div id="userModal" class="modal">
         <div class="modal-content">
-            <h3 class="modal-title">Информация о пользователе</h3>
-            <p><strong>Имя пользователя:</strong> <span id="userModalName">Загрузка...</span></p>
+            <img id="userAvatar" src="" alt="Аватар пользователя" class="user-avatar">
+            <h3 id="userFullName" class="modal-title">Имя пользователя</h3>
+            <p><strong>Юзернейм:</strong> <span id="userModalName">Загрузка...</span></p>
             <p><strong>ID:</strong> <span id="userModalId">Загрузка...</span></p>
             <button class="modal-button" onclick="closeUserModal()">Закрыть</button>
         </div>
@@ -788,9 +798,13 @@ function openUserModal() {
     const modal = document.getElementById('userModal');
     const userName = username || 'Гость';
     const userId = user?.id || 'Неизвестно';
+    const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Гость';
+    const avatarUrl = user?.photo_url || 'https://via.placeholder.com/100'; // Заглушка, если аватар отсутствует
 
     document.getElementById('userModalName').textContent = userName;
     document.getElementById('userModalId').textContent = userId;
+    document.getElementById('userFullName').textContent = fullName;
+    document.getElementById('userAvatar').src = avatarUrl;
 
     modal.style.display = 'flex';
 }
