@@ -458,25 +458,103 @@
             object-fit: cover;
             border: 2px solid var(--accent-color);
         }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: var(--secondary-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .tab-button.active {
+            background: var(--button-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .admin-button {
+            padding: 10px 20px;
+            background: var(--button-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .admin-button:hover {
+            background: var(--button-hover);
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>test</h1>
-            <div class="user-info" id="userInfo">Загрузка...</div>
-        </header>
-        
-        <div class="input-group">
-            <input type="text" id="taskInput" placeholder="Добавить задачу..." autocomplete="off">
-            <button onclick="showDateModal()">Добавить</button>
-        </div>
-        
-        <ul id="taskList">
-            <div class="empty-state">Задач пока нет. Добавьте первую!</div>
-        </ul>
+    <div class="tabs">
+        <button class="tab-button active" onclick="switchTab('myTasks')">Мои задачи</button>
+        <button class="tab-button" onclick="switchTab('assignments')">Задания</button>
     </div>
-    
+
+    <div id="myTasks" class="tab-content active">
+        <!-- Содержимое "Мои задачи" -->
+        <div class="container">
+            <header>
+                <h1>Мои задачи</h1>
+                <div class="user-info" id="userInfo">Загрузка...</div>
+            </header>
+            
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="Добавить задачу..." autocomplete="off">
+                <button onclick="showDateModal()">Добавить</button>
+            </div>
+            
+            <ul id="taskList">
+                <div class="empty-state">Задач пока нет. Добавьте первую!</div>
+            </ul>
+        </div>
+    </div>
+
+    <div id="assignments" class="tab-content">
+        <!-- Содержимое "Задания" -->
+        <div class="container">
+            <header>
+                <h1>Задания</h1>
+                <button id="adminButton" class="admin-button" style="display: none;" onclick="openAdminModal()">Админка</button>
+            </header>
+            <ul id="assignmentList">
+                <div class="empty-state">Заданий пока нет.</div>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Модальное окно для админки -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Админка</h3>
+            <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
+            <div class="modal-buttons">
+                <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
+                <button class="modal-button skip-button" onclick="closeAdminModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно выбора даты -->
     <div id="dateModal" class="modal">
         <div class="modal-content">
@@ -816,6 +894,56 @@ function closeUserModal() {
 
 // Добавить обработчик клика на юзернейм
 document.getElementById('userInfo').addEventListener('click', openUserModal);
+
+// ID администратора
+const adminId = '763888136'; // Укажите ID администратора Telegram
+
+// Переключение вкладок
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`.tab-button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+}
+
+// Открыть модальное окно админки
+function openAdminModal() {
+    document.getElementById('adminModal').style.display = 'flex';
+}
+
+// Закрыть модальное окно админки
+function closeAdminModal() {
+    document.getElementById('adminModal').style.display = 'none';
+}
+
+// Добавить задание
+function addAssignment() {
+    const assignmentText = document.getElementById('adminTaskInput').value.trim();
+    if (!assignmentText) {
+        showNotification('Введите текст задания', 'error');
+        return;
+    }
+
+    const assignmentList = document.getElementById('assignmentList');
+    const li = document.createElement('li');
+    li.textContent = assignmentText;
+    assignmentList.appendChild(li);
+
+    document.getElementById('adminTaskInput').value = '';
+    closeAdminModal();
+    showNotification('Задание добавлено!', 'success');
+}
+
+// Проверка на администратора
+document.addEventListener('DOMContentLoaded', function () {
+    if (user?.id === adminId) {
+        document.getElementById('adminButton').style.display = 'block';
+    }
+});
     </script>
 </body>
 </html>
