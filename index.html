@@ -240,14 +240,17 @@
                 return;
             }
             
-            tasks.forEach((task, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div class="task-text">${task}</div>
-                    <button class="delete-btn" onclick="deleteTask(${index})">Удалить</button>
-                `;
-                taskList.appendChild(li);
-            });
+tasks.forEach((task, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <div class="task-text">
+            <span style="color: var(--accent-color); margin-right: 8px;">${index + 1}.</span>
+            ${task}
+        </div>
+        <button class="delete-btn" onclick="deleteTask(${index})">Удалить</button>
+    `;
+    taskList.appendChild(li);
+});
         }
         
         // Добавление новой задачи
@@ -273,7 +276,7 @@
             tasks.splice(index, 1);
             saveTasks(tasks);
             renderTasks();
-            showNotification(`Задача "${taskText}" удалена`, 'error');
+showNotification(`Задача #${index + 1} удалена`, 'error');
         }
         
         // Обработка нажатия Enter
