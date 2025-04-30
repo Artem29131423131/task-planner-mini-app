@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Фиолетовый Планировщик</title>
+    <title>test</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -21,10 +21,16 @@
             --due-soon-color: #FFA500;
             --overdue-color: #FF4500;
             --modal-bg: rgba(0, 0, 0, 0.7);
+            --completed-border: #4CAF50;
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -32,52 +38,62 @@
             min-height: 100vh;
             position: relative;
             padding-bottom: 80px;
+            line-height: 1.5;
         }
         
         .container {
+            width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--accent-color);
+            flex-wrap: wrap;
         }
         
         h1 {
             color: var(--text-color);
             margin: 0;
-            font-size: 24px;
+            font-size: clamp(20px, 5vw, 24px);
+            flex: 1;
+            min-width: 150px;
         }
         
         .user-info {
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             color: var(--accent-color);
+            text-align: right;
+            padding: 5px 0;
         }
         
         .input-group {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         #taskInput {
-            flex: 1;
             padding: 12px;
             border: 2px solid var(--accent-color);
             border-radius: 8px;
             background: var(--secondary-bg);
             color: var(--text-color);
             font-size: 16px;
+            width: 100%;
+            -webkit-appearance: none;
         }
         
         #taskInput::placeholder {
             color: #a78bfa;
+            opacity: 0.7;
         }
         
         button {
@@ -88,16 +104,24 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-size: 16px;
+            width: 100%;
         }
         
-        button:hover {
+        button:hover, button:focus {
             background: var(--button-hover);
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         button:disabled {
-            background: #cccccc;
+            background: #666;
             cursor: not-allowed;
+            transform: none !important;
         }
         
         ul {
@@ -108,13 +132,17 @@
         
         li {
             background: var(--secondary-bg);
-            padding: 15px;
+            padding: 12px;
             margin-bottom: 10px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             animation: fadeIn 0.3s ease;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         
         @keyframes fadeIn {
@@ -122,40 +150,65 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .task-text {
+        li.completed {
+            border-color: var(--completed-border);
+            position: relative;
+        }
+        
+        li.completed::after {
+            content: '✓';
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: var(--completed-color);
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .task-content {
             flex: 1;
+            min-width: 60%;
+        }
+        
+        .task-text {
             word-break: break-word;
+            margin-right: 5px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .delete-btn, .complete-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            border: none;
+            color: white;
         }
         
         .delete-btn {
             background: var(--delete-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            margin-left: 10px;
-            cursor: pointer;
-            transition: opacity 0.2s;
         }
         
         .complete-btn {
             background: var(--completed-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            cursor: pointer;
-            transition: opacity 0.2s;
         }
         
         .delete-btn:hover, .complete-btn:hover {
-            opacity: 0.8;
+            opacity: 0.9;
+            transform: scale(1.05);
         }
         
         .empty-state {
             text-align: center;
-            padding: 40px 0;
+            padding: 30px 0;
             color: #a78bfa;
+            font-size: 16px;
         }
         
         .notification {
@@ -163,13 +216,16 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 12px 24px;
+            padding: 12px 20px;
             border-radius: 8px;
             color: white;
             font-weight: bold;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             z-index: 1000;
             animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+            max-width: 90%;
+            text-align: center;
+            font-size: 14px;
         }
         
         @keyframes slideIn {
@@ -190,36 +246,16 @@
             background-color: var(--error-color);
         }
         
-        .task-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
         .task-number {
             color: var(--accent-color);
             margin-right: 8px;
+            font-weight: bold;
             display: inline-block;
-            position: relative;
         }
 
-        .firework {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: gold;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: firework 1s ease-out forwards;
-        }
-
-        @keyframes firework {
-            0% { transform: translate(0, 0); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
-        }
-        
         .due-date {
             font-size: 12px;
-            margin-top: 4px;
+            margin-top: 5px;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -236,13 +272,8 @@
         .overdue {
             color: var(--overdue-color);
         }
-
-        .completed {
-            opacity: 0.7;
-            text-decoration: line-through;
-        }
         
-        /* Модальное окно для выбора даты */
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -254,49 +285,61 @@
             z-index: 1001;
             justify-content: center;
             align-items: center;
+            padding: 15px;
         }
         
         .modal-content {
             background: var(--secondary-bg);
             padding: 20px;
-            border-radius: 10px;
-            width: 90%;
+            border-radius: 12px;
+            width: 100%;
             max-width: 400px;
-            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .modal-title {
-            margin-bottom: 20px;
+            margin: 0 0 15px 0;
             color: var(--text-color);
+            font-size: 18px;
+            text-align: center;
         }
         
         .modal-date-input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid var(--accent-color);
             background: var(--bg-color);
             color: var(--text-color);
+            font-size: 16px;
         }
         
         .modal-buttons {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             gap: 10px;
         }
         
         .modal-button {
-            flex: 1;
-            padding: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
         }
         
         .skip-button {
             background: #666;
+            color: white;
         }
         
         .confirm-button {
             background: var(--button-color);
+            color: white;
         }
         
         /* Прогресс бар */
@@ -306,49 +349,117 @@
             left: 0;
             width: 100%;
             background: var(--secondary-bg);
-            padding: 15px;
+            padding: 12px 15px;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 10;
         }
         
         .progress-title {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 14px;
+            color: var(--text-color);
         }
         
         .progress-bar {
             width: 100%;
             max-width: 500px;
-            height: 20px;
+            height: 16px;
             background: var(--bg-color);
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
-            background: var(--accent-color);
-            border-radius: 10px;
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--accent-color), var(--button-hover));
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            position: relative;
         }
         
         .progress-text {
             margin-top: 5px;
             font-size: 12px;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+        
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 400px) {
+            .container {
+                padding: 10px;
+            }
+            
+            li {
+                padding: 10px;
+            }
+            
+            .task-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+        }
+        
+        /* Адаптация для планшетов */
+        @media (min-width: 768px) {
+            .input-group {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+            
+            #taskInput {
+                margin-bottom: 0;
+            }
+            
+            button {
+                width: auto;
+            }
+            
+            .modal-buttons {
+                flex-direction: row;
+            }
+        }
+
+        #userModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        #userModal .modal-content {
+            background: var(--secondary-bg);
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>PLANSER</h1>
+            <h1>test</h1>
             <div class="user-info" id="userInfo">Загрузка...</div>
         </header>
         
         <div class="input-group">
-            <input type="text" id="taskInput" placeholder="Добавить задачу...">
+            <input type="text" id="taskInput" placeholder="Добавить задачу..." autocomplete="off">
             <button onclick="showDateModal()">Добавить</button>
         </div>
         
@@ -366,6 +477,15 @@
                 <button class="modal-button skip-button" onclick="addTaskWithoutDate()">Пропустить</button>
                 <button id="confirmDateBtn" class="modal-button confirm-button" disabled onclick="addTaskWithDate()">Подтвердить</button>
             </div>
+        </div>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Информация о пользователе</h3>
+            <p><strong>Имя пользователя:</strong> <span id="userModalName">Загрузка...</span></p>
+            <p><strong>ID:</strong> <span id="userModalId">Загрузка...</span></p>
+            <button class="modal-button" onclick="closeUserModal()">Закрыть</button>
         </div>
     </div>
     
@@ -413,22 +533,31 @@
         function loadTasks() {
             const userTasks = localStorage.getItem(`tasks_${username}`);
             if (userTasks) {
-                const parsed = JSON.parse(userTasks);
-                // Поддержка старого формата
-                if (Array.isArray(parsed)) {
-                    return parsed.map(task => typeof task === 'string' 
-                        ? { text: task, completed: false } 
-                        : task);
+                try {
+                    const parsed = JSON.parse(userTasks);
+                    // Поддержка старого формата
+                    if (Array.isArray(parsed)) {
+                        return parsed.map(task => typeof task === 'string' 
+                            ? { text: task, completed: false } 
+                            : task);
+                    }
+                    return parsed || [];
+                } catch (e) {
+                    console.error("Ошибка загрузки задач:", e);
+                    return [];
                 }
-                return parsed;
             }
             return [];
         }
         
         // Сохранение задач в localStorage
         function saveTasks(tasks) {
-            localStorage.setItem(`tasks_${username}`, JSON.stringify(tasks));
-            updateProgress();
+            try {
+                localStorage.setItem(`tasks_${username}`, JSON.stringify(tasks));
+                updateProgress();
+            } catch (e) {
+                console.error("Ошибка сохранения задач:", e);
+            }
         }
         
         let tasks = loadTasks();
@@ -477,10 +606,16 @@
                 const dueStatus = getDueStatus(task.dueDate);
                 const formattedDate = formatDate(task.dueDate);
                 
+                if (task.completed) {
+                    li.classList.add('completed');
+                }
+                
                 li.innerHTML = `
-                    <div class="task-text ${task.completed ? 'completed' : ''}">
-                        <span class="task-number">${index + 1}.</span>
-                        ${task.text}
+                    <div class="task-content">
+                        <div class="task-text">
+                            <span class="task-number">${index + 1}.</span>
+                            ${task.text}
+                        </div>
                         ${task.dueDate ? `
                             <div class="due-date ${dueStatus}">
                                 <span class="due-date-icon">📅</span>
@@ -509,6 +644,7 @@
             
             if (!currentTaskText) {
                 showNotification('Введите текст задачи', 'error');
+                taskInput.focus();
                 return;
             }
             
@@ -516,15 +652,18 @@
             const dateInput = document.getElementById('modalDueDate');
             
             // Установка минимальной даты (сегодня)
-            dateInput.min = new Date().toISOString().split('T')[0];
+            const today = new Date();
+            dateInput.min = today.toISOString().split('T')[0];
             dateInput.value = '';
             
             modal.style.display = 'flex';
+            dateInput.focus();
         }
         
         // Закрыть модальное окно
         function closeDateModal() {
             document.getElementById('dateModal').style.display = 'none';
+            document.getElementById('taskInput').focus();
         }
         
         // Добавить задачу без даты
@@ -561,10 +700,16 @@
         
         // Удаление задачи
         function deleteTask(index) {
+            const isCompleted = tasks[index].completed;
             tasks.splice(index, 1);
             saveTasks(tasks);
             renderTasks();
             showNotification(`Задача #${index + 1} удалена`, 'error');
+            
+            // Если задача была выполнена, обновляем XP
+            if (isCompleted) {
+                updateProgress();
+            }
         }
         
         // Выполнение задачи с фейерверком
@@ -587,31 +732,6 @@
         
         // Создание эффекта фейерверка
         function createFirework(element) {
-            // Маленькие частицы
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'firework';
-                
-                // Случайное направление
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 20 + Math.random() * 30;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance;
-                
-                particle.style.setProperty('--tx', `${tx}px`);
-                particle.style.setProperty('--ty', `${ty}px`);
-                particle.style.left = '50%';
-                particle.style.top = '50%';
-                particle.style.background = `hsl(${Math.random() * 60 + 30}, 100%, 50%)`;
-                
-                element.appendChild(particle);
-                
-                // Удаляем частицу после анимации
-                setTimeout(() => {
-                    particle.remove();
-                }, 1000);
-            }
-            
             // Основной взрыв confetti.js
             confetti({
                 particleCount: 30,
@@ -628,7 +748,7 @@
         function updateProgress() {
             const completedTasks = tasks.filter(task => task.completed).length;
             const totalTasks = tasks.length;
-            const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+            const progress = totalTasks > 0 ? Math.min(100, (completedTasks / totalTasks) * 100) : 0;
             
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('progressText').textContent = `${completedTasks} XP`;
@@ -646,9 +766,42 @@
             }
         });
         
+        // Закрытие модального окна при клике вне его
+        document.getElementById('dateModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDateModal();
+            }
+        });
+        
         // Первоначальная загрузка
-        renderTasks();
-        updateProgress();
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTasks();
+            updateProgress();
+            
+            // Установка минимальной даты при загрузке
+            const today = new Date();
+            document.getElementById('modalDueDate').min = today.toISOString().split('T')[0];
+        });
+
+        // Открыть модальное окно пользователя
+function openUserModal() {
+    const modal = document.getElementById('userModal');
+    const userName = username || 'Гость';
+    const userId = user?.id || 'Неизвестно';
+
+    document.getElementById('userModalName').textContent = userName;
+    document.getElementById('userModalId').textContent = userId;
+
+    modal.style.display = 'flex';
+}
+
+// Закрыть модальное окно пользователя
+function closeUserModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+// Добавить обработчик клика на юзернейм
+document.getElementById('userInfo').addEventListener('click', openUserModal);
     </script>
 </body>
 </html>
