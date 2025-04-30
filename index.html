@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Фиолетовый Планировщик</title>
+    <title>PLANSERк</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
+            --completed-color: #4CAF50;
             --bg-color: #1a052b;
             --text-color: #f0e6ff;
             --accent-color: #8a2be2;
@@ -125,6 +126,17 @@
             cursor: pointer;
             transition: opacity 0.2s;
         }
+
+        .complete-btn {
+           background: var(--completed-color);
+           color: white;
+           border: none;
+           border-radius: 6px;
+           padding: 6px 12px;
+           margin-left: 10px;
+           cursor: pointer;
+           transition: opacity 0.2s;
+        }
         
         .delete-btn:hover {
             opacity: 0.8;
@@ -215,13 +227,15 @@
         }
         
         // Загрузка задач из localStorage
-        function loadTasks() {
-            const userTasks = localStorage.getItem(`tasks_${username}`);
-            if (userTasks) {
-                return JSON.parse(userTasks);
-            }
-            return [];
-        }
+function loadTasks() {
+    const userTasks = localStorage.getItem(`tasks_${username}`);
+    if (userTasks) {
+        const parsed = JSON.parse(userTasks);
+        // Поддержка старого формата (массив строк)
+        return parsed.some ? parsed : parsed.map(text => ({ text, completed: false }));
+    }
+    return [];
+}
         
         // Сохранение задач в localStorage
         function saveTasks(tasks) {
@@ -229,16 +243,50 @@
         }
         
         let tasks = loadTasks();
+
+        function completeTask(index) {
+    if (!tasks[index].completed) {
+        tasks[index] = {
+            text: tasks[index].text || tasks[index],
+            completed: true
+        };
+        saveTasks(tasks);
+        renderTasks();
+        showNotification(`Задача #${index + 1} выполнена!`, 'success');
+    }
+}
         
         // Отображение задач
         function renderTasks() {
-            const taskList = document.getElementById('taskList');
-            taskList.innerHTML = '';
-            
-            if (tasks.length === 0) {
-                taskList.innerHTML = '<div class="empty-state">Задач пока нет. Добавьте первую!</div>';
-                return;
-            }
+           const taskList = document.getElementById('taskList');
+               taskList.innerHTML = '';
+         
+             if (tasks.length === 0) {
+         taskList.innerHTML = '<div class="empty-state">Задач пока нет. Добавьте первую!</div>';
+         return;
+    }
+    
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="task-text">
+                <span style="color: var(--accent-color); margin-right: 8px;">${index + 1}.</span>
+                ${task.text || task}
+            </div>
+            <div>
+                <button class="complete-btn" onclick="completeTask(${index})">✓</button>
+                <button class="delete-btn" onclick="deleteTask(${index})">✕</button>
+            </div>
+        `;
+        
+        if (task.completed) {
+            li.style.opacity = '0.7';
+            li.querySelector('.task-text').style.textDecoration = 'line-through';
+        }
+        
+        taskList.appendChild(li);
+    });
+}
             
 tasks.forEach((task, index) => {
     const li = document.createElement('li');
@@ -254,21 +302,22 @@ tasks.forEach((task, index) => {
         }
         
         // Добавление новой задачи
-        function addTask() {
-            const taskInput = document.getElementById('taskInput');
-            const taskText = taskInput.value.trim();
-            
-            if (taskText) {
-                tasks.push(taskText);
-                saveTasks(tasks);
-                taskInput.value = '';
-                renderTasks();
-                showNotification('Задача добавлена!', 'success');
-                
-                // Закрытие клавиатуры на мобильных устройствах
-                taskInput.blur();
-            }
-        }
+function addTask() {
+    const taskInput = document.getElementById('taskInput');
+    const taskText = taskInput.value.trim();
+    
+    if (taskText) {
+        tasks.push({
+            text: taskText,
+            completed: false
+        });
+        saveTasks(tasks);
+        taskInput.value = '';
+        renderTasks();
+        showNotification('Задача добавлена!', 'success');
+        taskInput.blur();
+    }
+}
         
         // Удаление задачи
         function deleteTask(index) {
