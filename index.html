@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Purple Task Planner</title>
+    <title>Фиолетовый Планировщик</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,6 +14,8 @@
             --button-color: #9b4dff;
             --button-hover: #7b2cff;
             --delete-color: #ff4d6d;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
         }
         
         body {
@@ -133,34 +135,66 @@
             padding: 40px 0;
             color: #a78bfa;
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .success {
+            background-color: var(--success-color);
+        }
+        
+        .error {
+            background-color: var(--error-color);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Purple Planner</h1>
-            <div class="user-info" id="userInfo">Loading...</div>
+            <h1>Фиолетовый Планировщик</h1>
+            <div class="user-info" id="userInfo">Загрузка...</div>
         </header>
         
         <div class="input-group">
-            <input type="text" id="taskInput" placeholder="Add new task...">
-            <button onclick="addTask()">Add</button>
+            <input type="text" id="taskInput" placeholder="Добавить задачу...">
+            <button onclick="addTask()">Добавить</button>
         </div>
         
         <ul id="taskList">
-            <div class="empty-state">No tasks yet. Add your first task!</div>
+            <div class="empty-state">Задач пока нет. Добавьте первую!</div>
         </ul>
     </div>
 
     <script>
-        // Initialize Telegram WebApp
+        // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
         
-        // User data from Telegram
+        // Данные пользователя из Telegram
         const user = tg.initDataUnsafe.user;
-        let username = 'Guest';
+        let username = 'Гость';
         
         if (user) {
             username = user.username || `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
@@ -168,7 +202,19 @@
         
         document.getElementById('userInfo').textContent = `@${username}`;
         
-        // Load tasks from localStorage (user-specific)
+        // Показать уведомление
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Загрузка задач из localStorage
         function loadTasks() {
             const userTasks = localStorage.getItem(`tasks_${username}`);
             if (userTasks) {
@@ -177,20 +223,20 @@
             return [];
         }
         
-        // Save tasks to localStorage
+        // Сохранение задач в localStorage
         function saveTasks(tasks) {
             localStorage.setItem(`tasks_${username}`, JSON.stringify(tasks));
         }
         
         let tasks = loadTasks();
         
-        // Render tasks
+        // Отображение задач
         function renderTasks() {
             const taskList = document.getElementById('taskList');
             taskList.innerHTML = '';
             
             if (tasks.length === 0) {
-                taskList.innerHTML = '<div class="empty-state">No tasks yet. Add your first task!</div>';
+                taskList.innerHTML = '<div class="empty-state">Задач пока нет. Добавьте первую!</div>';
                 return;
             }
             
@@ -198,13 +244,13 @@
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <div class="task-text">${task}</div>
-                    <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                    <button class="delete-btn" onclick="deleteTask(${index})">Удалить</button>
                 `;
                 taskList.appendChild(li);
             });
         }
         
-        // Add new task
+        // Добавление новой задачи
         function addTask() {
             const taskInput = document.getElementById('taskInput');
             const taskText = taskInput.value.trim();
@@ -214,30 +260,30 @@
                 saveTasks(tasks);
                 taskInput.value = '';
                 renderTasks();
+                showNotification('Задача добавлена!', 'success');
                 
-                // Close keyboard on mobile
+                // Закрытие клавиатуры на мобильных устройствах
                 taskInput.blur();
             }
         }
         
-        // Delete task
+        // Удаление задачи
         function deleteTask(index) {
+            const taskText = tasks[index];
             tasks.splice(index, 1);
             saveTasks(tasks);
             renderTasks();
+            showNotification(`Задача "${taskText}" удалена`, 'error');
         }
         
-        // Handle Enter key
+        // Обработка нажатия Enter
         document.getElementById('taskInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addTask();
             }
         });
         
-        // Initial render
-        renderTasks();
-        
-        // Send data back to bot when needed
+        // Отправка данных боту при необходимости
         function sendDataToBot() {
             tg.sendData(JSON.stringify({
                 action: 'tasks_updated',
@@ -245,6 +291,9 @@
                 taskCount: tasks.length
             }));
         }
+        
+        // Первоначальная загрузка
+        renderTasks();
     </script>
 </body>
 </html>
