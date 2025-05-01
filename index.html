@@ -717,6 +717,7 @@
     <div id="statisticsModal" class="modal">
         <div class="modal-content">
             <div class="modal-close" onclick="closeStatisticsModal()"></div>
+            <button class="modal-button" onclick="returnToFunctionModal()" style="position: absolute; top: 15px; left: 15px;">&lt;</button>
             <h3 class="modal-title">Статистика</h3>
             <p><strong>Пользователи:</strong> <span id="userCount">0</span></p>
         </div>
@@ -1124,6 +1125,11 @@
             document.getElementById('userCount').textContent = userCount;
         }
         
+        /* Возвращает обратно в функционал админки */
+        function returnToFunctionModal() {
+             closeStatisticsModal();
+             openFunctionModal();
+        }
     </script>
 </body>
 </html>
