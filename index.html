@@ -30,6 +30,9 @@
         }
         
         body {
+            background: url('backfon.jpg') no-repeat center bottom;
+            background-size: cover;
+            background-attachment: fixed;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-color);
             color: var(--text-color);
@@ -214,7 +217,7 @@
         .empty-state {
             text-align: center;
             padding: 30px 0;
-            color: #a78bfa;
+            color: lab(64.63% 34.57 -51.88);
             font-size: 16px;
         }
         
@@ -537,7 +540,7 @@
 
         .admin-window-close {
             font-size: 24px;
-            color: var(--text-color);
+            color: var (--text-color);
             cursor: pointer;
             transition: color 0.3s;
         }
@@ -605,6 +608,15 @@
             .modal-buttons {
                 flex-direction: row;
             }
+        }
+
+        #userModal .modal-content {
+            background: rgba(60, 0, 116, 0.329); /* Прозрачный фон */
+        }
+
+        #functionModal .modal-content,
+        #statisticsModal .modal-content {
+            background: rgba(60, 0, 116, 0.329); /* Прозрачный фон */
         }
     </style>
 </head>
@@ -689,6 +701,25 @@
             <div class="progress-fill" id="progressFill"></div>
         </div>
         <div class="progress-text" id="progressText">0 XP</div>
+    </div>
+
+    <div id="functionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeFunctionModal()"></div>
+            <h3 class="modal-title">Выберите функцию</h3>
+            <div class="modal-buttons">
+                <button class="modal-button" onclick="openAddAssignment()">Добавить задание</button>
+                <button class="modal-button" onclick="openStatistics()">Статистика</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="statisticsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeStatisticsModal()"></div>
+            <h3 class="modal-title">Статистика</h3>
+            <p><strong>Пользователи:</strong> <span id="userCount">0</span></p>
+        </div>
     </div>
 
     <script>
@@ -933,9 +964,7 @@
                 showNotification('Доступ запрещен', 'error');
                 return;
             }
-            
-            document.getElementById('adminWindow').classList.add('active');
-            closeUserModal();
+            openFunctionModal(); // Открывает модальное окно выбора функции
         }
         
         // Закрытие окна админ-панели
@@ -1066,6 +1095,35 @@
             const today = new Date();
             document.getElementById('modalDueDate').min = today.toISOString().split('T')[0];
         });
+
+        function openFunctionModal() {
+            document.getElementById('functionModal').classList.add('show');
+        }
+
+        function closeFunctionModal() {
+            document.getElementById('functionModal').classList.remove('show');
+        }
+
+        function openAddAssignment() {
+            closeFunctionModal();
+            openAdminWindow(); // Открывает окно добавления задания
+        }
+
+        function openStatistics() {
+            closeFunctionModal();
+            document.getElementById('statisticsModal').classList.add('show');
+            updateStatistics(); // Обновляет данные статистики
+        }
+
+        function closeStatisticsModal() {
+            document.getElementById('statisticsModal').classList.remove('show');
+        }
+
+        function updateStatistics() {
+            const userCount = 1; // Здесь можно заменить на реальное количество пользователей
+            document.getElementById('userCount').textContent = userCount;
+        }
+        
     </script>
 </body>
 </html>
