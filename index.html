@@ -31,10 +31,8 @@
         }
         
         body {
-            background: url('backfon.jpg') no-repeat center bottom;
-            background-size: cover;
-            background-attachment: fixed;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 0;
@@ -596,7 +594,7 @@
     <div id="statisticsModal" class="modal">
         <div class="modal-content">
             <div class="modal-close" onclick="closeModal('statisticsModal')"></div>
-            <button class="modal-back" onclick="returnToFunctionModal()">←</button>
+            <button class="modal-back" onclick="returnToFunctionModal()">назад</button>
             <h3 class="modal-title">Статистика</h3>
             <p><strong>Пользователи:</strong> <span id="userCount">0</span></p>
         </div>
