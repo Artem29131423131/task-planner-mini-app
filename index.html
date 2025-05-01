@@ -72,6 +72,12 @@
             text-align: right;
             padding: 5px 0;
             cursor: pointer;
+            position: relative;
+        }
+        
+        .user-info::after {
+            content: '👤';
+            margin-left: 5px;
         }
         
         .input-group {
@@ -423,27 +429,6 @@
             display: block;
         }
 
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: var(--text-color);
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
-        }
-
-        .close-button:hover {
-            color: red;
-        }
-
-        .close-button:focus {
-            outline: none;
-        }
-
         .user-avatar {
             width: 100px;
             height: 100px;
@@ -470,6 +455,105 @@
             display: block;
         }
 
+        /* Стили для интересного закрытия модальных окон */
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .modal-close::before,
+        .modal-close::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .modal-close::before {
+            transform: rotate(45deg);
+        }
+
+        .modal-close::after {
+            transform: rotate(-45deg);
+        }
+
+        .modal-close:hover::before,
+        .modal-close:hover::after {
+            background: var(--button-hover);
+            transform: rotate(180deg);
+        }
+
+        /* Анимация для модального закрытия */
+        @keyframes spinClose {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Стили для нового окна админ-панели */
+        .admin-window {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 1002;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .admin-window.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--accent-color);
+        }
+
+        .admin-window-title {
+            font-size: 20px;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .admin-window-close {
+            font-size: 24px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .admin-window-close:hover {
+            color: var(--button-hover);
+        }
+
+        .admin-window-content {
+            background: var(--secondary-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Адаптивные стили */
         @media (max-width: 400px) {
             .container {
                 padding: 10px;
@@ -486,6 +570,21 @@
             
             .modal-content {
                 padding: 15px;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .tab-button {
+                margin: 0;
+                width: 100%;
+            }
+
+            .user-avatar {
+                width: 80px;
+                height: 80px;
             }
         }
         
@@ -547,34 +646,39 @@
     <!-- Модальное окно пользователя -->
     <div id="userModal" class="modal">
         <div class="modal-content">
-            <button class="close-button" onclick="closeUserModal()">✕</button>
+            <div class="modal-close" onclick="closeUserModal()"></div>
             <img id="userAvatar" src="" alt="Аватар пользователя" class="user-avatar">
             <h3 id="userFullName">Имя пользователя</h3>
             <p><strong>Юзернейм:</strong> <span id="userModalName">Загрузка...</span></p>
             <p><strong>ID:</strong> <span id="userModalId">Загрузка...</span></p>
 
-            <!-- Кнопка AC-PANEL (видна всем) -->
-            <button class="modal-button admin-panel-button" onclick="toggleAdminPanel()">AC-PANEL</button>
-
-            <!-- Скрытая админ-панель (активируется только для админа) -->
-            <div class="admin-panel" id="adminPanel">
-                <h3>Панель администратора</h3>
-                <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
-                <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
-            </div>
+            <!-- Кнопка AC-PANEL -->
+            <button class="modal-button admin-panel-button" onclick="openAdminWindow()">AC-PANEL</button>
         </div>
     </div>
 
     <!-- Модальное окно для выбора даты -->
     <div id="dateModal" class="modal">
         <div class="modal-content">
-            <button class="close-button" onclick="closeDateModal()">✕</button>
+            <div class="modal-close" onclick="closeDateModal()"></div>
             <h3 class="modal-title">Установить срок выполнения</h3>
             <input type="date" id="modalDueDate" class="modal-date-input">
             <div class="modal-buttons">
                 <button class="modal-button confirm-button" id="confirmDateBtn" onclick="addTaskWithDate()" disabled>Подтвердить</button>
                 <button class="modal-button" onclick="addTaskWithoutDate()">Без срока</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Окно админ-панели -->
+    <div id="adminWindow" class="admin-window">
+        <div class="admin-window-header">
+            <h2 class="admin-window-title">Панель администратора</h2>
+            <div class="admin-window-close" onclick="closeAdminWindow()">✕</div>
+        </div>
+        <div class="admin-window-content">
+            <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
+            <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
         </div>
     </div>
     
@@ -604,7 +708,9 @@
             isAdmin = user.id.toString() === adminId;
         }
         
-        document.getElementById('userInfo').textContent = `@${username}`;
+        // Обновление информации о пользователе
+        document.getElementById('userInfo').textContent = `${user?.first_name || 'Имя пользователя'}`;
+
         let currentTaskText = '';
         let tasks = loadTasks();
         let assignments = loadAssignments();
@@ -821,15 +927,20 @@
             }
         }
         
-        // Переключение админ-панели
-        function toggleAdminPanel() {
+        // Открытие окна админ-панели
+        function openAdminWindow() {
             if (!isAdmin) {
                 showNotification('Доступ запрещен', 'error');
                 return;
             }
             
-            const adminPanel = document.getElementById('adminPanel');
-            adminPanel.classList.toggle('active');
+            document.getElementById('adminWindow').classList.add('active');
+            closeUserModal();
+        }
+        
+        // Закрытие окна админ-панели
+        function closeAdminWindow() {
+            document.getElementById('adminWindow').classList.remove('active');
         }
         
         // Добавление задания (админка)
@@ -843,7 +954,6 @@
             assignments.push(assignmentText);
             saveAssignments(assignments);
             document.getElementById('adminTaskInput').value = '';
-            document.getElementById('adminPanel').classList.remove('active');
             renderAssignments();
             showNotification('Задание добавлено!', 'success');
         }
@@ -908,7 +1018,6 @@
             document.getElementById('userFullName').textContent = fullName;
             document.getElementById('userAvatar').src = avatarUrl;
 
-            document.getElementById('adminPanel').classList.remove('active');
             modal.classList.add('show');
         }
 
