@@ -443,16 +443,20 @@
             border: 2px solid var(--accent-color);
         }
 
-        .admin-section {
+        .admin-panel-button {
+            margin-top: 15px;
+            background: var(--button-color);
+        }
+
+        .admin-panel {
+            display: none;
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid var(--accent-color);
         }
 
-        .admin-section h3 {
-            margin-top: 0;
-            text-align: center;
-            color: var(--accent-color);
+        .admin-panel.active {
+            display: block;
         }
 
         @media (max-width: 400px) {
@@ -529,7 +533,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно пользователя с админкой -->
+    <!-- Модальное окно пользователя -->
     <div id="userModal" class="modal">
         <div class="modal-content">
             <button class="close-button" onclick="closeUserModal()">✕</button>
@@ -538,8 +542,11 @@
             <p><strong>Юзернейм:</strong> <span id="userModalName">Загрузка...</span></p>
             <p><strong>ID:</strong> <span id="userModalId">Загрузка...</span></p>
 
-            <!-- Секция админки (видна всем, но функционал работает только для админа) -->
-            <div class="admin-section" id="adminSection">
+            <!-- Кнопка AC-PANEL (видна всем) -->
+            <button class="modal-button admin-panel-button" onclick="toggleAdminPanel()">AC-PANEL</button>
+
+            <!-- Скрытая админ-панель (активируется только для админа) -->
+            <div class="admin-panel" id="adminPanel">
                 <h3>Панель администратора</h3>
                 <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
                 <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
@@ -811,13 +818,19 @@
             }
         }
         
-        // Добавление задания (админка)
-        function addAssignment() {
+        // Переключение админ-панели
+        function toggleAdminPanel() {
             if (!isAdmin) {
                 showNotification('Доступ запрещен', 'error');
                 return;
             }
             
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.classList.toggle('active');
+        }
+        
+        // Добавление задания (админка)
+        function addAssignment() {
             const assignmentText = document.getElementById('adminTaskInput').value.trim();
             if (!assignmentText) {
                 showNotification('Введите текст задания', 'error');
@@ -827,6 +840,7 @@
             assignments.push(assignmentText);
             saveAssignments(assignments);
             document.getElementById('adminTaskInput').value = '';
+            document.getElementById('adminPanel').classList.remove('active');
             renderAssignments();
             showNotification('Задание добавлено!', 'success');
         }
@@ -890,6 +904,9 @@
             document.getElementById('userModalId').textContent = userId;
             document.getElementById('userFullName').textContent = fullName;
             document.getElementById('userAvatar').src = avatarUrl;
+
+            // Скрываем админ-панель при каждом открытии
+            document.getElementById('adminPanel').classList.remove('active');
 
             modal.style.display = 'flex';
         }
