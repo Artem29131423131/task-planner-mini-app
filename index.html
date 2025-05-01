@@ -286,6 +286,17 @@
             justify-content: center;
             align-items: center;
             padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal.hide {
+            opacity: 0;
         }
         
         .modal-content {
@@ -551,8 +562,6 @@
                 <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
                 <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
             </div>
-
-            <button class="modal-button" onclick="closeUserModal()">Закрыть</button>
         </div>
     </div>
 
@@ -748,13 +757,7 @@
             document.getElementById('modalDueDate').value = '';
             document.getElementById('confirmDateBtn').disabled = true;
             
-            document.getElementById('dateModal').style.display = 'flex';
-        }
-        
-        // Закрыть модальное окно даты
-        function closeDateModal() {
-            document.getElementById('dateModal').style.display = 'none';
-            document.getElementById('taskInput').focus();
+            openDateModal();
         }
         
         // Добавить задачу без даты
@@ -905,17 +908,26 @@
             document.getElementById('userFullName').textContent = fullName;
             document.getElementById('userAvatar').src = avatarUrl;
 
-            // Скрываем админ-панель при каждом открытии
             document.getElementById('adminPanel').classList.remove('active');
+            modal.classList.add('show');
+        }
 
-            modal.style.display = 'flex';
+        // Открыть модальное окно даты
+        function openDateModal() {
+            document.getElementById('dateModal').classList.add('show');
         }
 
         // Закрыть модальное окно пользователя
         function closeUserModal() {
-            document.getElementById('userModal').style.display = 'none';
+            document.getElementById('userModal').classList.remove('show');
         }
-        
+
+        // Закрыть модальное окно даты
+        function closeDateModal() {
+            document.getElementById('dateModal').classList.remove('show');
+            document.getElementById('taskInput').focus();
+        }
+
         // Обработчики событий
         document.getElementById('modalDueDate').addEventListener('change', function() {
             document.getElementById('confirmDateBtn').disabled = !this.value;
@@ -927,13 +939,14 @@
             }
         });
         
-        document.getElementById('dateModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDateModal();
+        document.getElementById('userInfo').addEventListener('click', openUserModal);
+
+        // Закрытие модальных окон при клике вне содержимого
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
             }
         });
-        
-        document.getElementById('userInfo').addEventListener('click', openUserModal);
 
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
