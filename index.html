@@ -22,6 +22,7 @@
             --overdue-color: #FF4500;
             --modal-bg: rgba(0, 0, 0, 0.7);
             --completed-border: #4CAF50;
+            --modal-content-bg: rgba(60, 0, 116, 0.329);
         }
         
         * {
@@ -34,7 +35,6 @@
             background-size: cover;
             background-attachment: fixed;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 0;
@@ -61,9 +61,12 @@
             flex-wrap: wrap;
         }
         
-        h1 {
+        h1, h2, h3 {
             color: var(--text-color);
             margin: 0;
+        }
+        
+        h1 {
             font-size: clamp(20px, 5vw, 24px);
             flex: 1;
             min-width: 150px;
@@ -90,7 +93,7 @@
             margin-bottom: 15px;
         }
         
-        #taskInput {
+        input, textarea {
             padding: 12px;
             border: 2px solid var(--accent-color);
             border-radius: 8px;
@@ -101,7 +104,7 @@
             -webkit-appearance: none;
         }
         
-        #taskInput::placeholder {
+        input::placeholder, textarea::placeholder {
             color: #a78bfa;
             opacity: 0.7;
         }
@@ -217,7 +220,7 @@
         .empty-state {
             text-align: center;
             padding: 30px 0;
-            color: lab(64.63% 34.57 -51.88);
+            color: #a78bfa;
             font-size: 16px;
         }
         
@@ -236,16 +239,6 @@
             max-width: 90%;
             text-align: center;
             font-size: 14px;
-        }
-        
-        @keyframes slideIn {
-            from { top: -50px; opacity: 0; }
-            to { top: 20px; opacity: 1; }
-        }
-        
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
         }
         
         .success {
@@ -304,12 +297,8 @@
             opacity: 1;
         }
         
-        .modal.hide {
-            opacity: 0;
-        }
-        
         .modal-content {
-            background: var(--secondary-bg);
+            background: var(--modal-content-bg);
             padding: 20px;
             border-radius: 12px;
             width: 100%;
@@ -321,41 +310,13 @@
         
         .modal-title {
             margin: 0 0 15px 0;
-            color: var(--text-color);
-            font-size: 18px;
             text-align: center;
-        }
-        
-        .modal-date-input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--accent-color);
-            background: var(--bg-color);
-            color: var(--text-color);
-            font-size: 16px;
         }
         
         .modal-buttons {
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-        
-        .modal-button {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 16px;
-        }
-        
-        .confirm-button {
-            background: var(--button-color);
-            color: white;
         }
         
         .progress-container {
@@ -375,7 +336,6 @@
         .progress-title {
             margin-bottom: 8px;
             font-size: 14px;
-            color: var(--text-color);
         }
         
         .progress-bar {
@@ -392,13 +352,11 @@
             background: linear-gradient(90deg, var(--accent-color), var(--button-hover));
             border-radius: 8px;
             transition: width 0.5s ease;
-            position: relative;
         }
         
         .progress-text {
             margin-top: 5px;
             font-size: 12px;
-            color: var(--text-color);
             font-weight: bold;
         }
         
@@ -444,21 +402,9 @@
 
         .admin-panel-button {
             margin-top: 15px;
-            background: var(--button-color);
         }
 
-        .admin-panel {
-            display: none;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--accent-color);
-        }
-
-        .admin-panel.active {
-            display: block;
-        }
-
-        /* Стили для интересного закрытия модальных окон */
+        /* Стили для закрытия модальных окон */
         .modal-close {
             position: absolute;
             top: 15px;
@@ -498,62 +444,28 @@
             transform: rotate(180deg);
         }
 
-        /* Анимация для модального закрытия */
-        @keyframes spinClose {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Стили для нового окна админ-панели */
-        .admin-window {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            z-index: 1002;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .admin-window.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .admin-window-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--accent-color);
-        }
-
-        .admin-window-title {
-            font-size: 20px;
-            color: var(--text-color);
-            margin: 0;
-        }
-
-        .admin-window-close {
-            font-size: 24px;
-            color: var (--text-color);
+        /* Стили для кнопки "назад" */
+        .modal-back {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 30px;
+            height: 30px;
             cursor: pointer;
-            transition: color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            border: none;
+            color: var(--accent-color);
+            font-size: 24px;
+            z-index: 1;
+            transition: transform 0.3s ease, color 0.3s ease;
         }
 
-        .admin-window-close:hover {
+        .modal-back:hover {
             color: var(--button-hover);
-        }
-
-        .admin-window-content {
-            background: var(--secondary-bg);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            transform: translateX(-3px);
         }
 
         /* Адаптивные стили */
@@ -609,60 +521,6 @@
                 flex-direction: row;
             }
         }
-
-        #userModal .modal-content {
-            background: rgba(60, 0, 116, 0.329); /* Прозрачный фон */
-        }
-
-        #functionModal .modal-content,
-        #statisticsModal .modal-content {
-            background: rgba(60, 0, 116, 0.329); /* Прозрачный фон */
-        }
-
-        .modal-back {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: transparent;
-            border: none;
-            z-index: 1;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-
-        .modal-back::before,
-        .modal-back::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 3px;
-            background: var(--accent-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .modal-back::before {
-            transform: rotate(45deg) translateX(-5px);
-        }
-
-        .modal-back::after {
-            transform: rotate(-45deg) translateX(-5px);
-        }
-
-        .modal-back:hover::before,
-        .modal-back:hover::after {
-            background: var(--button-hover);
-            transform: rotate(0deg) translateX(0);
-        }
-
-        .modal-back:active {
-            transform: scale(0.9);
-        }
     </style>
 </head>
 <body>
@@ -700,24 +558,21 @@
         </div>
     </div>
 
-    <!-- Модальное окно пользователя -->
+    <!-- Модальные окна -->
     <div id="userModal" class="modal">
         <div class="modal-content">
-            <div class="modal-close" onclick="closeUserModal()"></div>
+            <div class="modal-close" onclick="closeModal('userModal')"></div>
             <img id="userAvatar" src="" alt="Аватар пользователя" class="user-avatar">
             <h3 id="userFullName">Имя пользователя</h3>
             <p><strong>Юзернейм:</strong> <span id="userModalName">Загрузка...</span></p>
             <p><strong>ID:</strong> <span id="userModalId">Загрузка...</span></p>
-
-            <!-- Кнопка AC-PANEL -->
-            <button class="modal-button admin-panel-button" onclick="openAdminWindow()">AC-PANEL</button>
+            <button class="modal-button admin-panel-button" onclick="openFunctionModal()">AC-PANEL</button>
         </div>
     </div>
 
-    <!-- Модальное окно для выбора даты -->
     <div id="dateModal" class="modal">
         <div class="modal-content">
-            <div class="modal-close" onclick="closeDateModal()"></div>
+            <div class="modal-close" onclick="closeModal('dateModal')"></div>
             <h3 class="modal-title">Установить срок выполнения</h3>
             <input type="date" id="modalDueDate" class="modal-date-input">
             <div class="modal-buttons">
@@ -726,16 +581,33 @@
             </div>
         </div>
     </div>
-    
-    <!-- Окно админ-панели -->
-    <div id="adminWindow" class="admin-window">
-        <div class="admin-window-header">
-            <h2 class="admin-window-title">Панель администратора</h2>
-            <div class="admin-window-close" onclick="closeAdminWindow()">✕</div>
+
+    <div id="functionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal('functionModal')"></div>
+            <h3 class="modal-title">Выберите функцию</h3>
+            <div class="modal-buttons">
+                <button class="modal-button" onclick="openAdminWindow()">Добавить задание</button>
+                <button class="modal-button" onclick="openStatistics()">Статистика</button>
+            </div>
         </div>
-        <div class="admin-window-content">
-            <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
-            <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
+    </div>
+
+    <div id="statisticsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal('statisticsModal')"></div>
+            <button class="modal-back" onclick="returnToFunctionModal()">←</button>
+            <h3 class="modal-title">Статистика</h3>
+            <p><strong>Пользователи:</strong> <span id="userCount">0</span></p>
+        </div>
+    </div>
+
+    <div id="adminWindow" class="modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal('adminWindow')"></div>
+            <h3 class="modal-title">Добавить задание</h3>
+            <textarea id="adminTaskInput" placeholder="Введите текст задания..."></textarea>
+            <button class="modal-button confirm-button" onclick="addAssignment()">Добавить</button>
         </div>
     </div>
     
@@ -748,94 +620,62 @@
         <div class="progress-text" id="progressText">0 XP</div>
     </div>
 
-    <div id="functionModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-close" onclick="closeFunctionModal()"></div>
-            <h3 class="modal-title">Выберите функцию</h3>
-            <div class="modal-buttons">
-                <button class="modal-button" onclick="openAddAssignment()">Добавить задание</button>
-                <button class="modal-button" onclick="openStatistics()">Статистика</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="statisticsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-close" onclick="closeStatisticsModal()"></div>
-            <button class="modal-back" onclick="returnToFunctionModal()" style="position: absolute; top: 15px; left: 15px;">&lt;</button>
-            <h3 class="modal-title">Статистика</h3>
-            <p><strong>Пользователи:</strong> <span id="userCount">0</span></p>
-        </div>
-    </div>
-
     <script>
         // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
         
-        // Данные пользователя из Telegram
+        // Данные пользователя
         const user = tg.initDataUnsafe.user;
-        const adminId = '763888136'; // ID администратора Telegram
+        const adminId = '763888136';
         let username = 'Гость';
         let isAdmin = false;
         
         if (user) {
             username = user.username || `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
             isAdmin = user.id.toString() === adminId;
+            document.getElementById('userInfo').textContent = user.first_name || 'Имя пользователя';
         }
-        
-        // Обновление информации о пользователе
-        document.getElementById('userInfo').textContent = `${user?.first_name || 'Имя пользователя'}`;
 
+        // Задачи и задания
         let currentTaskText = '';
         let tasks = loadTasks();
         let assignments = loadAssignments();
         
-        // Загрузка задач из localStorage
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTasks();
+            renderAssignments();
+            updateProgress();
+            document.getElementById('modalDueDate').min = new Date().toISOString().split('T')[0];
+        });
+
+        // Функции для работы с задачами
         function loadTasks() {
             const userTasks = localStorage.getItem(`tasks_${username}`);
-            if (userTasks) {
-                try {
-                    const parsed = JSON.parse(userTasks);
-                    return Array.isArray(parsed) ? parsed.map(task => typeof task === 'string' ? { text: task, completed: false } : task) : [];
-                } catch (e) {
-                    console.error("Ошибка загрузки задач:", e);
-                    return [];
-                }
-            }
-            return [];
+            return userTasks ? JSON.parse(userTasks) : [];
         }
         
-        // Сохранение задач в localStorage
-        function saveTasks(tasks) {
-            try {
-                localStorage.setItem(`tasks_${username}`, JSON.stringify(tasks));
-                updateProgress();
-            } catch (e) {
-                console.error("Ошибка сохранения задач:", e);
-            }
+        function saveTasks() {
+            localStorage.setItem(`tasks_${username}`, JSON.stringify(tasks));
+            updateProgress();
         }
         
-        // Загрузка заданий из localStorage
         function loadAssignments() {
             const storedAssignments = localStorage.getItem('assignments');
             return storedAssignments ? JSON.parse(storedAssignments) : [];
         }
         
-        // Сохранение заданий в localStorage
-        function saveAssignments(assignments) {
+        function saveAssignments() {
             localStorage.setItem('assignments', JSON.stringify(assignments));
         }
         
-        // Форматирование даты
         function formatDate(dateString) {
             if (!dateString) return '';
-            const options = { day: 'numeric', month: 'short' };
-            return new Date(dateString).toLocaleDateString('ru-RU', options);
+            return new Date(dateString).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
         }
         
-        // Проверка срока выполнения
         function getDueStatus(dueDate) {
             if (!dueDate) return '';
             const today = new Date();
@@ -849,15 +689,9 @@
             return '';
         }
         
-        // Отображение задач
         function renderTasks() {
             const taskList = document.getElementById('taskList');
-            taskList.innerHTML = '';
-            
-            if (tasks.length === 0) {
-                taskList.innerHTML = '<div class="empty-state">Задач пока нет. Добавьте первую!</div>';
-                return;
-            }
+            taskList.innerHTML = tasks.length ? '' : '<div class="empty-state">Задач пока нет. Добавьте первую!</div>';
             
             tasks.sort((a, b) => {
                 if (!a.dueDate && !b.dueDate) return 0;
@@ -871,9 +705,7 @@
                 const dueStatus = getDueStatus(task.dueDate);
                 const formattedDate = formatDate(task.dueDate);
                 
-                if (task.completed) {
-                    li.classList.add('completed');
-                }
+                if (task.completed) li.classList.add('completed');
                 
                 li.innerHTML = `
                     <div class="task-content">
@@ -891,26 +723,17 @@
                         ` : ''}
                     </div>
                     <div class="task-actions">
-                        ${!task.completed ? `
-                            <button class="complete-btn" onclick="completeTask(${index})">✓</button>
-                        ` : ''}
+                        ${!task.completed ? `<button class="complete-btn" onclick="completeTask(${index})">✓</button>` : ''}
                         <button class="delete-btn" onclick="deleteTask(${index})">✕</button>
                     </div>
                 `;
-                
                 taskList.appendChild(li);
             });
         }
         
-        // Отображение заданий
         function renderAssignments() {
             const assignmentList = document.getElementById('assignmentList');
-            assignmentList.innerHTML = '';
-            
-            if (assignments.length === 0) {
-                assignmentList.innerHTML = '<div class="empty-state">Заданий пока нет.</div>';
-                return;
-            }
+            assignmentList.innerHTML = assignments.length ? '' : '<div class="empty-state">Заданий пока нет.</div>';
             
             assignments.forEach((assignment, index) => {
                 const li = document.createElement('li');
@@ -926,77 +749,48 @@
             });
         }
         
-        // Добавить задачу
         function addTask() {
             currentTaskText = document.getElementById('taskInput').value.trim();
+            if (!currentTaskText) return showNotification('Введите текст задачи', 'error');
             
-            if (!currentTaskText) {
-                showNotification('Введите текст задачи', 'error');
-                return;
-            }
-            
-            const today = new Date();
-            document.getElementById('modalDueDate').min = today.toISOString().split('T')[0];
             document.getElementById('modalDueDate').value = '';
             document.getElementById('confirmDateBtn').disabled = true;
-            
-            openDateModal();
+            openModal('dateModal');
         }
         
-        // Добавить задачу без даты
         function addTaskWithoutDate() {
-            tasks.push({
-                text: currentTaskText,
-                dueDate: null,
-                completed: false
-            });
-            
-            saveTasks(tasks);
+            tasks.push({ text: currentTaskText, dueDate: null, completed: false });
+            saveTasks();
             document.getElementById('taskInput').value = '';
-            closeDateModal();
+            closeModal('dateModal');
             renderTasks();
             showNotification('Задача добавлена!', 'success');
         }
         
-        // Добавить задачу с датой
         function addTaskWithDate() {
             const dueDate = document.getElementById('modalDueDate').value;
-            
-            tasks.push({
-                text: currentTaskText,
-                dueDate: dueDate,
-                completed: false
-            });
-            
-            saveTasks(tasks);
+            tasks.push({ text: currentTaskText, dueDate, completed: false });
+            saveTasks();
             document.getElementById('taskInput').value = '';
-            closeDateModal();
+            closeModal('dateModal');
             renderTasks();
             showNotification('Задача добавлена!', 'success');
         }
         
-        // Удаление задачи
         function deleteTask(index) {
             const isCompleted = tasks[index].completed;
             tasks.splice(index, 1);
-            saveTasks(tasks);
+            saveTasks();
             renderTasks();
             showNotification(`Задача #${index + 1} удалена`, 'error');
-            
-            if (isCompleted) {
-                updateProgress();
-            }
+            if (isCompleted) updateProgress();
         }
         
-        // Выполнение задачи
         function completeTask(index) {
             if (!tasks[index].completed) {
-                const taskNumber = document.querySelectorAll('.task-number')[index];
-                createFirework(taskNumber);
-                
+                createFirework(document.querySelectorAll('.task-number')[index]);
                 tasks[index].completed = true;
-                saveTasks(tasks);
-                
+                saveTasks();
                 setTimeout(() => {
                     showNotification(`Задача #${index + 1} выполнена! +1 XP`, 'success');
                     renderTasks();
@@ -1004,36 +798,25 @@
             }
         }
         
-        // Открытие окна админ-панели
-        function openAdminWindow() {
-            if (!isAdmin) {
-                showNotification('Доступ запрещен', 'error');
-                return;
-            }
-            openFunctionModal(); // Открывает модальное окно выбора функции
-        }
-        
-        // Закрытие окна админ-панели
-        function closeAdminWindow() {
-            document.getElementById('adminWindow').classList.remove('active');
-        }
-        
-        // Добавление задания (админка)
         function addAssignment() {
             const assignmentText = document.getElementById('adminTaskInput').value.trim();
-            if (!assignmentText) {
-                showNotification('Введите текст задания', 'error');
-                return;
-            }
+            if (!assignmentText) return showNotification('Введите текст задания', 'error');
 
             assignments.push(assignmentText);
-            saveAssignments(assignments);
+            saveAssignments();
             document.getElementById('adminTaskInput').value = '';
+            closeModal('adminWindow');
             renderAssignments();
             showNotification('Задание добавлено!', 'success');
         }
         
-        // Эффект фейерверка
+        function updateProgress() {
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const progress = tasks.length ? Math.min(100, (completedTasks / tasks.length) * 100) : 0;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${completedTasks} XP`;
+        }
+        
         function createFirework(element) {
             confetti({
                 particleCount: 30,
@@ -1046,43 +829,24 @@
             });
         }
         
-        // Обновление прогресса
-        function updateProgress() {
-            const completedTasks = tasks.filter(task => task.completed).length;
-            const totalTasks = tasks.length;
-            const progress = totalTasks > 0 ? Math.min(100, (completedTasks / totalTasks) * 100) : 0;
-            
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `${completedTasks} XP`;
-        }
-        
-        // Показать уведомление
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.textContent = message;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
         
-        // Переключение вкладок
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        // Функции для работы с модальными окнами
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
         }
         
-        // Открыть модальное окно пользователя
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
         function openUserModal() {
-            const modal = document.getElementById('userModal');
             const userName = username || 'Гость';
             const userId = user?.id || 'Неизвестно';
             const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Гость';
@@ -1092,89 +856,53 @@
             document.getElementById('userModalId').textContent = userId;
             document.getElementById('userFullName').textContent = fullName;
             document.getElementById('userAvatar').src = avatarUrl;
-
-            modal.classList.add('show');
+            openModal('userModal');
         }
-
-        // Открыть модальное окно даты
-        function openDateModal() {
-            document.getElementById('dateModal').classList.add('show');
+        
+        function openFunctionModal() {
+            if (!isAdmin) return showNotification('Доступ запрещен', 'error');
+            openModal('functionModal');
         }
-
-        // Закрыть модальное окно пользователя
-        function closeUserModal() {
-            document.getElementById('userModal').classList.remove('show');
+        
+        function openAdminWindow() {
+            closeModal('functionModal');
+            openModal('adminWindow');
         }
-
-        // Закрыть модальное окно даты
-        function closeDateModal() {
-            document.getElementById('dateModal').classList.remove('show');
-            document.getElementById('taskInput').focus();
+        
+        function openStatistics() {
+            closeModal('functionModal');
+            document.getElementById('userCount').textContent = 1; // Здесь можно добавить реальное количество пользователей
+            openModal('statisticsModal');
         }
-
+        
+        function returnToFunctionModal() {
+            closeModal('statisticsModal');
+            openFunctionModal();
+        }
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        }
+        
         // Обработчики событий
         document.getElementById('modalDueDate').addEventListener('change', function() {
             document.getElementById('confirmDateBtn').disabled = !this.value;
         });
         
         document.getElementById('taskInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTask();
-            }
+            if (e.key === 'Enter') addTask();
         });
         
         document.getElementById('userInfo').addEventListener('click', openUserModal);
-
-        // Закрытие модальных окон при клике вне содержимого
+        
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('modal')) {
                 e.target.classList.remove('show');
             }
         });
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            renderTasks();
-            renderAssignments();
-            updateProgress();
-            
-            const today = new Date();
-            document.getElementById('modalDueDate').min = today.toISOString().split('T')[0];
-        });
-
-        function openFunctionModal() {
-            document.getElementById('functionModal').classList.add('show');
-        }
-
-        function closeFunctionModal() {
-            document.getElementById('functionModal').classList.remove('show');
-        }
-
-        function openAddAssignment() {
-            closeFunctionModal();
-            openAdminWindow(); // Открывает окно добавления задания
-        }
-
-        function openStatistics() {
-            closeFunctionModal();
-            document.getElementById('statisticsModal').classList.add('show');
-            updateStatistics(); // Обновляет данные статистики
-        }
-
-        function closeStatisticsModal() {
-            document.getElementById('statisticsModal').classList.remove('show');
-        }
-
-        function updateStatistics() {
-            const userCount = 1; // Здесь можно заменить на реальное количество пользователей
-            document.getElementById('userCount').textContent = userCount;
-        }
-        
-        /* Возвращает обратно в функционал админки */
-        function returnToFunctionModal() {
-             closeStatisticsModal();
-             openFunctionModal();
-        }
     </script>
 </body>
 </html>
