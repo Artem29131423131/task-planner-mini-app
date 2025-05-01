@@ -412,18 +412,6 @@
             display: block;
         }
 
-        .admin-button {
-            padding: 10px 20px;
-            background: var(--button-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-            display: none;
-        }
-
         .close-button {
             position: absolute;
             top: 10px;
@@ -443,6 +431,28 @@
 
         .close-button:focus {
             outline: none;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        .admin-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--accent-color);
+        }
+
+        .admin-section h3 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--accent-color);
         }
 
         @media (max-width: 400px) {
@@ -512,7 +522,6 @@
         <div class="container">
             <header>
                 <h1>Задания</h1>
-                <button id="adminButton" class="admin-button" onclick="openAdminPanel()">AC-PANEL</button>
             </header>
             <ul id="assignmentList">
                 <div class="empty-state">Заданий пока нет.</div>
@@ -520,24 +529,23 @@
         </div>
     </div>
 
-    <!-- Модальное окно панели администратора -->
-    <div id="adminPanelModal" class="modal">
+    <!-- Модальное окно пользователя с админкой -->
+    <div id="userModal" class="modal">
         <div class="modal-content">
-            <button class="close-button" onclick="closeAdminPanel()">✕</button>
-            <h3 class="modal-title">Панель администратора</h3>
-            <div class="modal-buttons">
-                <button class="modal-button confirm-button" onclick="openAddAssignment()">Добавить задание</button>
-            </div>
-        </div>
-    </div>
+            <button class="close-button" onclick="closeUserModal()">✕</button>
+            <img id="userAvatar" src="" alt="Аватар пользователя" class="user-avatar">
+            <h3 id="userFullName">Имя пользователя</h3>
+            <p><strong>Юзернейм:</strong> <span id="userModalName">Загрузка...</span></p>
+            <p><strong>ID:</strong> <span id="userModalId">Загрузка...</span></p>
 
-    <!-- Модальное окно для добавления задания -->
-    <div id="addAssignmentModal" class="modal">
-        <div class="modal-content">
-            <button class="close-button" onclick="closeAddAssignment()">✕</button>
-            <h3 class="modal-title">Добавить задание</h3>
-            <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
-            <button class="modal-button confirm-button" onclick="addAssignment()">Добавить</button>
+            <!-- Секция админки (видна всем, но функционал работает только для админа) -->
+            <div class="admin-section" id="adminSection">
+                <h3>Панель администратора</h3>
+                <textarea id="adminTaskInput" placeholder="Введите текст задания..." class="modal-date-input"></textarea>
+                <button class="modal-button confirm-button" onclick="addAssignment()">Добавить задание</button>
+            </div>
+
+            <button class="modal-button" onclick="closeUserModal()">Закрыть</button>
         </div>
     </div>
 
@@ -573,17 +581,17 @@
         const user = tg.initDataUnsafe.user;
         const adminId = '763888136'; // ID администратора Telegram
         let username = 'Гость';
+        let isAdmin = false;
         
         if (user) {
             username = user.username || `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
-            if (user.id === adminId) {
-                document.getElementById('adminButton').style.display = 'block';
-            }
+            isAdmin = user.id.toString() === adminId;
         }
         
         document.getElementById('userInfo').textContent = `@${username}`;
         let currentTaskText = '';
         let tasks = loadTasks();
+        let assignments = loadAssignments();
         
         // Загрузка задач из localStorage
         function loadTasks() {
@@ -608,6 +616,17 @@
             } catch (e) {
                 console.error("Ошибка сохранения задач:", e);
             }
+        }
+        
+        // Загрузка заданий из localStorage
+        function loadAssignments() {
+            const storedAssignments = localStorage.getItem('assignments');
+            return storedAssignments ? JSON.parse(storedAssignments) : [];
+        }
+        
+        // Сохранение заданий в localStorage
+        function saveAssignments(assignments) {
+            localStorage.setItem('assignments', JSON.stringify(assignments));
         }
         
         // Форматирование даты
@@ -681,6 +700,30 @@
                 `;
                 
                 taskList.appendChild(li);
+            });
+        }
+        
+        // Отображение заданий
+        function renderAssignments() {
+            const assignmentList = document.getElementById('assignmentList');
+            assignmentList.innerHTML = '';
+            
+            if (assignments.length === 0) {
+                assignmentList.innerHTML = '<div class="empty-state">Заданий пока нет.</div>';
+                return;
+            }
+            
+            assignments.forEach((assignment, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="task-content">
+                        <div class="task-text">
+                            <span class="task-number">${index + 1}.</span>
+                            ${assignment}
+                        </div>
+                    </div>
+                `;
+                assignmentList.appendChild(li);
             });
         }
         
@@ -768,6 +811,26 @@
             }
         }
         
+        // Добавление задания (админка)
+        function addAssignment() {
+            if (!isAdmin) {
+                showNotification('Доступ запрещен', 'error');
+                return;
+            }
+            
+            const assignmentText = document.getElementById('adminTaskInput').value.trim();
+            if (!assignmentText) {
+                showNotification('Введите текст задания', 'error');
+                return;
+            }
+
+            assignments.push(assignmentText);
+            saveAssignments(assignments);
+            document.getElementById('adminTaskInput').value = '';
+            renderAssignments();
+            showNotification('Задание добавлено!', 'success');
+        }
+        
         // Эффект фейерверка
         function createFirework(element) {
             confetti({
@@ -815,40 +878,25 @@
             document.querySelector(`.tab-button[onclick="switchTab('${tabId}')"]`).classList.add('active');
         }
         
-        // Админ-функции
-        function openAdminPanel() {
-            closeAddAssignment();
-            document.getElementById('adminPanelModal').style.display = 'flex';
-        }
-        
-        function closeAdminPanel() {
-            document.getElementById('adminPanelModal').style.display = 'none';
-        }
-        
-        function openAddAssignment() {
-            closeAdminPanel();
-            document.getElementById('addAssignmentModal').style.display = 'flex';
-        }
-        
-        function closeAddAssignment() {
-            document.getElementById('addAssignmentModal').style.display = 'none';
-        }
-        
-        function addAssignment() {
-            const assignmentText = document.getElementById('adminTaskInput').value.trim();
-            if (!assignmentText) {
-                showNotification('Введите текст задания', 'error');
-                return;
-            }
+        // Открыть модальное окно пользователя
+        function openUserModal() {
+            const modal = document.getElementById('userModal');
+            const userName = username || 'Гость';
+            const userId = user?.id || 'Неизвестно';
+            const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Гость';
+            const avatarUrl = user?.photo_url || 'https://via.placeholder.com/100';
 
-            const assignmentList = document.getElementById('assignmentList');
-            const li = document.createElement('li');
-            li.textContent = assignmentText;
-            assignmentList.appendChild(li);
+            document.getElementById('userModalName').textContent = userName;
+            document.getElementById('userModalId').textContent = userId;
+            document.getElementById('userFullName').textContent = fullName;
+            document.getElementById('userAvatar').src = avatarUrl;
 
-            document.getElementById('adminTaskInput').value = '';
-            closeAddAssignment();
-            showNotification('Задание добавлено!', 'success');
+            modal.style.display = 'flex';
+        }
+
+        // Закрыть модальное окно пользователя
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
         }
         
         // Обработчики событий
@@ -868,9 +916,12 @@
             }
         });
         
+        document.getElementById('userInfo').addEventListener('click', openUserModal);
+
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
             renderTasks();
+            renderAssignments();
             updateProgress();
             
             const today = new Date();
