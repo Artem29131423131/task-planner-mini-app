@@ -296,15 +296,16 @@
         }
         
         .modal-content {
-            background: var(--modal-content-bg);
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 400px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
+    background: var(--modal-content-bg);
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    border: 2px solid var(--accent-color); /* Добавляем фиолетовую обводку */
+}
         
         .modal-title {
             margin: 0 0 15px 0;
@@ -868,10 +869,12 @@
         }
         
         function openStatistics() {
-            closeModal('functionModal');
-            document.getElementById('userCount').textContent = 1; // Здесь можно добавить реальное количество пользователей
-            openModal('statisticsModal');
-        }
+    closeModal('functionModal');
+    getUserCount((count) => {
+        document.getElementById('userCount').textContent = count;
+        openModal('statisticsModal');
+    });
+}
         
         function returnToFunctionModal() {
             closeModal('statisticsModal');
